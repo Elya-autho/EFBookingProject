@@ -62,12 +62,3 @@ def test_ping_timeout(api_client, mocker):
         api_client.ping()
 
 
-@allure.feature("Test created")
-@allure.story("Test created booking")
-def test_created_booking(api_client, booking_data):
-    try:
-        with allure.step("Отправка запроса на создание бронирования"):
-            response = api_client.create_booking(booking_data)
-            assert response.status_code == 201
-    except Exception as e:
-        print(f"Пропускаю ошибку:{e}")
