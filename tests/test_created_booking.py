@@ -2,29 +2,43 @@ import allure
 import pytest
 import requests
 from core.clients.api_client import APIClient
+from pydantic import ValidationError
+from core.models.booking import BookingResponce
 
 
 @allure.feature("Test created")
 @allure.story("Test created booking")
-def test_created_booking(api_client, booking_data):
-    with allure.step("Отправка запроса на создание бронирования"):
-        response = api_client.create_booking(booking_data)
-    with allure.step("Проверка кода ответа"):
-        assert response.status_code == 201, f"Ожидался код 201, получен {response.status_code}"
-    with allure.step("Проверка структуры ответа"):
-        response_data = response.json
-        assert response_data["firstname"] == booking_data["firstname"], "Имя не совпадает"
-        assert response_data["lastname"] == booking_data["lastname"], "Фамилия не совпадает"
-        assert response_data["totalprice"] == booking_data["totalprice"], "Сумма не совпадает"
-        assert response_data["depositpaid"] == booking_data["depositpaid"], "Статус депозита не совпадает"
-    with allure.step("Проверка дат бронирования"):
-        assert "bookingdates" in response_data, "Отсутствует блок bookingdates в ответе"
-        assert response_data["bookingdates"]["checkin"] == booking_data["bookingdates"]["checkin"], \
-            f"Дата заезда не совпадает. Ожидалось: {booking_data['bookingdates']['checkin']}, Получено: {response_data['bookingdates']['checkin']}"
-        assert response_data["bookingdates"]["checkout"] == booking_data["bookingdates"]["checkout"], \
-            f"Дата выезда не совпадает. Ожидалось: {booking_data['bookingdates']['checkout']}, Получено: {response_data['bookingdates']['checkout']}"
+def test_created_booking(api_client, booking_dates):
+    booking_data = {
+            "firstname": "Jim",
+            "lastname": "Brown",
+            "totalprice": 111,
+            "depositpaid": True,
+            "bookingdates": booking_dates,
+            "additionalneeds": "Breakfast"
+        }
+    response = api_client.create_booking(booking_data)
+    try:
+        BookingResponce(**response)
+    except ValidationError as e:
+        raise ValidationError(f"Responce validation failed {e}")
 
-    with allure.step("Проверка additionalneeds"):
-        assert "additionalneeds" in response_data, "Отсутствует поле additionalneeds в ответе"
-        assert response_data["additionalneeds"] == booking_data["additionalneeds"], \
-            f"Дополнительные пожелания не совпадают. Ожидалось: {booking_data['additionalneeds']}, Получено: {response_data['additionalneeds']}"
+    assert response['booking']["firstname"] == booking_data["firstname"], "Имя не совпадает"
+    assert response['booking']["lastname"] == booking_data["lastname"], "Фамилия не совпадает"
+    assert response['booking']["totalprice"] == booking_data["totalprice"], "Сумма не совпадает"
+    assert response['booking']["depositpaid"] == booking_data["depositpaid"], "Статус депозита не совпадает"
+    assert response['booking']["bookingdates"]["checkin"] == booking_data["bookingdates"]["checkin"]
+    assert response['booking']["bookingdates"]["checkout"] == booking_data["bookingdates"]["checkout"]
+    assert response['booking']["additionalneeds"] == booking_data["additionalneeds"]
+    assert response['booking']["firstname"] != ""
+    assert response['booking']["lastname"] != ""
+    assert response['booking']["firstname"] != "!.?"
+    assert response['booking']["lastname"] != "!.?"
+    assert response['booking']["totalprice"] >= 0
+    assert response['booking']["depositpaid"] != str
+    assert response['booking']["bookingdates"]["checkin"] != ""
+    assert response['booking']["bookingdates"]["checkout"] != ""
+
+
+
+
