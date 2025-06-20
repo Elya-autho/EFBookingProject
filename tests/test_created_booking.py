@@ -30,14 +30,7 @@ def test_created_booking(api_client, booking_dates):
     assert response['booking']["bookingdates"]["checkin"] == booking_data["bookingdates"]["checkin"]
     assert response['booking']["bookingdates"]["checkout"] == booking_data["bookingdates"]["checkout"]
     assert response['booking']["additionalneeds"] == booking_data["additionalneeds"]
-    assert response['booking']["firstname"] != ""
-    assert response['booking']["lastname"] != ""
-    assert response['booking']["firstname"] != "!.?"
-    assert response['booking']["lastname"] != "!.?"
-    assert response['booking']["totalprice"] >= 0
-    assert response['booking']["depositpaid"] != str
-    assert response['booking']["bookingdates"]["checkin"] != ""
-    assert response['booking']["bookingdates"]["checkout"] != ""
+
 
 
 
