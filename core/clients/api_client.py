@@ -102,7 +102,7 @@ class APIClient:
         response = self.session.post(url, json=booking_data_negative_price)
         response.raise_for_status()
         with allure.step("Checking status code"):
-            assert response.booking_data_negative_price == 500, f"Expected status 500 but got {response.status_code}"
+            assert response.status_code == 500, f"Expected status 500 but got{response.status_code}"
         return response.json()
 
 
