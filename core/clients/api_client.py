@@ -96,8 +96,8 @@ class APIClient:
             assert response.status_code == 200, f"Expected status 200 but got {response.status_code}"
         return response.json()
 
-    def create_booking_negativ(self, booking_data_negative_price):
-        with allure.step("Create booking negativ"):
+    def create_booking_negative(self, booking_data_negative_price):
+        with allure.step("Create booking negative"):
             url = f"{self.base_url}{Endpoints.BOOKING_ENDPOINT.value}"
         response = self.session.post(url, json=booking_data_negative_price)
         response.raise_for_status()
